@@ -1,0 +1,26 @@
+* 1.8V two-stage Miller OTA — common-mode AC response (HSPICE)
+.lib '{usage_lib}' tt_mos_varactor
+Vdd vdd 0 DC {vdd}
+Vbp1 vdd vbp1 DC {vbp1_drop}
+Vbp2 vdd vbp2 DC {vbp2_drop}
+Vinp inp 0 DC {vcm} AC 1
+Vinn inn 0 DC {vcm} AC 1
+
+* Stage 1
+xm3 n1 n1 0 0 n18_ckt w={w_load_um}u l={l_load_um}u nfin={nfin_load} nf=1 m={m_load}
+xm4 n2 n1 0 0 n18_ckt w={w_load_um}u l={l_load_um}u nfin={nfin_load} nf=1 m={m_load}
+xm1 n1 inp tail vdd p18_ckt w={w_in_um}u l={l_in_um}u nfin={nfin_in} nf=1 m={m_in}
+xm2 n2 inn tail vdd p18_ckt w={w_in_um}u l={l_in_um}u nfin={nfin_in} nf=1 m={m_in}
+xm5 tail vbp1 vdd vdd p18_ckt w={w_tail_um}u l={l_tail_um}u nfin={nfin_tail} nf=1 m={m_tail}
+
+* Stage 2
+xm6 out n2 0 0 n18_ckt w={w_stage2_um}u l={l_stage2_um}u nfin={nfin_stage2} nf=1 m={m_stage2}
+xm7 out vbp2 vdd vdd p18_ckt w={w_p2_um}u l={l_p2_um}u nfin={nfin_p2} nf=1 m={m_p2}
+
+Rz n2 rz {rz}
+Cc rz out {cc}
+Cl out 0 {cl}
+
+.ac dec 100 {fstart} {fstop}
+.print ac vdb(out) vp(out)
+.end
